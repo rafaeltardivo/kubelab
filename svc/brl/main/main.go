@@ -1,32 +1,31 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 )
 
-type rate struct {
-	BRL float64 `json:"BRL"`
-}
-
-type BRL struct {
-	Rates rate `json:"rates"`
-}
-
 func main() {
-	var payload BRL
-	resp, err := http.Get("https://api.exchangeratesapi.io/latest?symbols=BRL")
-	if err != nil {
-		print(err)
-	}
-	defer resp.Body.Close()
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		resp, err := http.Get("https://api.exchangeratesapi.io/latest?symbols=BRL")
+		if err != nil {
+			log.Fatalln(err)
+		}
+		defer resp.Body.Close()
 
-	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&payload)
-	if err != nil {
-		print(err)
-	}
+		bytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatalln(err)
+		}
 
-	fmt.Printf("%f", payload.Rates.BRL)
+		content := string(bytes)
+		log.Print(content)
+
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, content)
+	})
+
+	http.ListenAndServe(":8080", nil)
 }

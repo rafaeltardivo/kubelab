@@ -1,32 +1,32 @@
 package main
 
 import (
-	"encoding/json"
 	"fmt"
+	"io/ioutil"
+	"log"
 	"net/http"
 )
 
-type rate struct {
-	USD float64 `json:"USD"`
-}
-
-type USD struct {
-	Rates rate `json:"rates"`
-}
-
 func main() {
-	var payload USD
-	resp, err := http.Get("https://api.exchangeratesapi.io/latest?symbols=USD")
-	if err != nil {
-		print(err)
-	}
-	defer resp.Body.Close()
 
-	decoder := json.NewDecoder(resp.Body)
-	err = decoder.Decode(&payload)
-	if err != nil {
-		print(err)
-	}
+	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
+		resp, err := http.Get("https://api.exchangeratesapi.io/latest?symbols=USD")
+		if err != nil {
+			log.Fatalln(err)
+		}
+		defer resp.Body.Close()
 
-	fmt.Printf("%f", payload.Rates.USD)
+		bytes, err := ioutil.ReadAll(resp.Body)
+		if err != nil {
+			log.Fatalln(err)
+		}
+
+		content := string(bytes)
+		log.Print(content)
+
+		w.Header().Set("Content-Type", "application/json")
+		fmt.Fprintf(w, content)
+	})
+
+	http.ListenAndServe(":8080", nil)
 }
