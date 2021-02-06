@@ -19,7 +19,6 @@ func main() {
 		if err != nil {
 			log.Fatalln(err)
 		}
-
 		content := string(bytes)
 		log.Print(content)
 
@@ -27,5 +26,5 @@ func main() {
 		fmt.Fprintf(w, content)
 	})
 
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe("0.0.0.0:8080", nil)
 }

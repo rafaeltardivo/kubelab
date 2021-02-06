@@ -8,7 +8,6 @@ import (
 )
 
 func main() {
-
 	http.HandleFunc("/", func(w http.ResponseWriter, r *http.Request) {
 		resp, err := http.Get("https://api.exchangeratesapi.io/latest?symbols=USD")
 		if err != nil {
@@ -28,5 +27,5 @@ func main() {
 		fmt.Fprintf(w, content)
 	})
 
-	http.ListenAndServe(":8080", nil)
+	http.ListenAndServe("0.0.0.0:8080", nil)
 }
